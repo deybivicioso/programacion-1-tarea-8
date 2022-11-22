@@ -86,6 +86,7 @@ class components extends JPanel {
         JSeparator prueba=new JSeparator(1);       
         prueba.setForeground(Color.black.darker());
         menuD.add(prueba);
+        
     }
 
     public void textSpace() {
