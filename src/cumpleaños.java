@@ -1,8 +1,11 @@
 import java.awt.Font;
 import java.awt.Color;
+import java.lang.*;
 
 import javax.swing.BorderFactory;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -24,13 +27,13 @@ public class cumpleaños extends JFrame {
     public cumpleaños() {
         setTitle("bithday agenda");
         setVisible(true);
-        setBounds(0, 0, 650, 545);
+        setBounds(0, 0, 650, 725);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         add(runer);
     }
 }
 
-class components extends JPanel implements ActionListener{
+class components extends JPanel implements ActionListener {
     JPanel papel = new JPanel();// this is the layout to put the component except table.
     JLabel firsttitle = new JLabel("Add birthday");// header
     // title of the text field
@@ -53,10 +56,14 @@ class components extends JPanel implements ActionListener{
     JMenuItem update = new JMenuItem("Actualizar");
     JMenuItem delete = new JMenuItem("Borrar");
     JMenuItem search = new JMenuItem("Buscar");
-    //variables to database
+    // variables to database
     private Connection BBDD;
     private Statement instruction;
-    
+    // elemnts to table
+    JPanel panel = new JPanel();
+    JTable tabla = new JTable();
+    JScrollPane scroll = new JScrollPane();
+    DefaultTableModel modeloT = new DefaultTableModel();
 
     public components() {
         setLayout(null);
@@ -64,10 +71,11 @@ class components extends JPanel implements ActionListener{
         titlee();
         textSpace();
         menu();
-       
+        myTabla();
+
     }
 
-    public void menu() {// this method contains all the elements that allow me to build the menu        
+    public void menu() {// this method contains all the elements that allow me to build the menu
         menuD.setBounds(0, 1, 650, 35);
         menuD.setBorder(BorderFactory.createRaisedBevelBorder());
         add(menuD);
@@ -124,7 +132,7 @@ class components extends JPanel implements ActionListener{
 
     public void layouut() {
         papel.setBorder(BorderFactory.createEtchedBorder());
-        papel.setBounds(5, 100, 625, 230);
+        papel.setBounds(5, 50, 625, 230);
         papel.setLayout(null);
         papel.add(firsttitle);
         papel.add(secondttitle);
@@ -134,25 +142,51 @@ class components extends JPanel implements ActionListener{
         papel.add(fourthtitle);
         papel.add(km);
         add(papel);
-    }  
+    }
+
+    public void myTabla() {
+        panel.setBounds(5, 290, 625, 350);
+        panel.setBorder(BorderFactory.createEtchedBorder());
+        panel.setLayout(null);
+        add(panel);
+        tabla.setModel(modeloT);
+        // tabla=new JTable(modeloT);
+        scroll = new JScrollPane(tabla);
+        panel.add(scroll);
+        scroll.setBounds(5, 5, 500, 330);
+        String[] columna = new String[] { "nombre", "fecha", "mensaje" };
+        modeloT.setColumnIdentifiers(columna);
+        /*
+         * la instruccion que crea las filas de la columna estan
+         * codificadas en el evento del boton guardar
+         */
+
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         // TODO Auto-generated method stub
-        Object evento=e.getSource();
-       if (evento==save){
-        try{
-            BBDD=DriverManager.getConnection("jdbc:mysql:/localhost:3306/ programacion1tarea8","root", "");
-            instruction=BBDD.createStatement();
-            String nombre=firstField.getText();
-            String fecha=secondField.getText();
-            String comentario=thirdField.getText();
-            instruction.executeUpdate("insert into agenda(nombre, fecha, mensaje) values('"+nombre+fecha+comentario+"')");
-            BBDD.close();
-        } catch(Exception a){
-            a.printStackTrace();
-        }
-       
+        Object evento = e.getSource();
+        if (evento == save) {
+            modeloT.addRow(new Object[] {
+                    firstField.getText(), secondField.getText(), thirdField.getText()
+            });
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                BBDD = DriverManager.getConnection("jdbc:mysql://localhost:3306/ programacion1tarea8", "root", "");
+                instruction = BBDD.createStatement();
+                ResultSet resultado = instruction.executeQuery("insert into agenda(nombre, fecha, mensaje) values('"
+                        + firstField.getText() + secondField.getText()
+                        + thirdField.getText() + "')");
+                // instruction.executeUpdate("insert into agenda(nombre, fecha, mensaje)
+                // values('"+firstField.getText()+secondField.getText()
+                // +thirdField.getText()+"')");
+                BBDD.close();
+            } catch (Exception a) {
+                a.printStackTrace();
+
+            }
+
+        }//marca,,,,,
     }
-}
 }
